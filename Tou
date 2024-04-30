@@ -5057,6 +5057,16 @@ spawn(function()
  end
  end)
     
+    Tabs.Sthop:AddButton({
+        Title = "Join Discord",
+        Description = "",
+        Callback = function()
+    setclipboard("https://discord.com/invite/tKvywQZJ4x") 
+        end
+    })
+    
+    
+    
 local BoneCheck = Tabs.St:AddParagraph({
         Title = "Bone",
         Content = ""
