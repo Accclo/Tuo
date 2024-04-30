@@ -5057,7 +5057,7 @@ spawn(function()
  end
  end)
     
-    Tabs.Sthop:AddButton({
+    Tabs.St:AddButton({
         Title = "Join Discord",
         Description = "",
         Callback = function()
