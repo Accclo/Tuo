@@ -4508,7 +4508,6 @@ Options.Skillz_Toggle:SetValue(true)
 
 Skillz:OnChanged(function(value)
     _G.Skillz = value
-    _G.Settings.Skillz = value
 end)
 
 local Skillx = Tabs.Main:AddToggle("Skillx_Toggle", {Title = "Skill X", Default = false })
@@ -4516,7 +4515,6 @@ Options.Skillx_Toggle:SetValue(false)
 
 Skillx:OnChanged(function(value)
     _G.Skillx = value
-    _G.Settings.Skillx = value
 end)
 
 local Skillc = Tabs.Main:AddToggle("Skillc_Toggle", {Title = "Skill C", Default = false })
@@ -4524,7 +4522,6 @@ Options.Skillc_Toggle:SetValue(false)
 
 Skillc:OnChanged(function(value)
     _G.Skillc = value
-    _G.Settings.Skillc = value
 end)
 
 local Skillv = Tabs.Main:AddToggle("Skillv_Toggle", {Title = "Skill V", Default = false })
@@ -4532,7 +4529,6 @@ Options.Skillv_Toggle:SetValue(false)
 
 Skillv:OnChanged(function(value)
     _G.Skillv = value
-    _G.Settings.Skillv = value
 end)
 
 local Skillf = Tabs.Main:AddToggle("Skillf_Toggle", {Title = "Skill F", Default = false })
@@ -4540,7 +4536,6 @@ Options.Skillf_Toggle:SetValue(false)
 
 Skillf:OnChanged(function(value)
     _G.Skillf = value
-    _G.Settings.Skillf = value
 end)
 
     local AutoMysticIsland = Tabs.Main:AddSection("migare island")
