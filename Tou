@@ -173,13 +173,14 @@ spawn(function()
     wait(1.5)
     require(game.ReplicatedStorage.Notification).new("<Color=Red> WELECOM TO SkyX Hub<Color=/>"):Display()
     require(game.ReplicatedStorage.Notification).new("<Color=Blue>Join Server discord in tap status<Color=/>"):Display()
-    require(game.ReplicatedStorage.Notification).new("<Color=Red> 1<Color=/>"):Display()
+end)
+wait(1.5)
+require(game.ReplicatedStorage.Notification).new("<Color=Red> 1<Color=/>"):Display()
     wait(1)
     require(game.ReplicatedStorage.Notification).new("<Color=Red> 2<Color=/>"):Display()
     wait(1)
     require(game.ReplicatedStorage.Notification).new("<Color=Red> 3<Color=/>"):Display()
     wait(1)
-end)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/Accclo/Tuo/main/Ui"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
@@ -2702,11 +2703,93 @@ end)
 local Toggle = Tabs.Main:AddToggle("MyToggle", {Title = "Fast attack", Default = True })
 
     Toggle:OnChanged(function(value)
-     _G.AriFast = value
+     _G.FastAttack = value
     end)
 
     Options.MyToggle:SetValue(True)
+local Client = game.Players.LocalPlayer
+local STOP = require(Client.PlayerScripts.CombatFramework.Particle)
+local STOPRL = require(game:GetService("ReplicatedStorage").CombatFramework.RigLib)
+spawn(function()
+    while task.wait() do
+        pcall(function()
+            if not shared.orl then shared.orl = STOPRL.wrapAttackAnimationAsync end
+            if not shared.cpc then shared.cpc = STOP.play end
+                STOPRL.wrapAttackAnimationAsync = function(a,b,c,d,func)
+                local Hits = STOPRL.getBladeHits(b,c,d)
+                if Hits then
+                    if _G.FastAttack or _G.HyperSonic then
+                        STOP.play = function() end
+                        a:Play(0.01,0.01,0.01)
+                        func(Hits)
+                        STOP.play = shared.cpc
+                        wait(a.length * 0.7)
+                        a:Stop()
+                    else
+                        a:Play()
+                    end
+                end
+            end
+        end)
+    end
+end)
 
+function GetBladeHit()
+local CombatFrameworkLib = debug.getupvalues(require(game:GetService("Players").LocalPlayer.PlayerScripts.CombatFramework))
+local CmrFwLib = CombatFrameworkLib[2]
+local p13 = CmrFwLib.activeController
+local weapon = p13.blades[1]
+if not weapon then 
+    return weapon
+end
+while weapon.Parent ~= game.Players.LocalPlayer.Character do
+    weapon = weapon.Parent 
+end
+return weapon
+end
+function AttackHit()
+local CombatFrameworkLib = debug.getupvalues(require(game:GetService("Players").LocalPlayer.PlayerScripts.CombatFramework))
+local CmrFwLib = CombatFrameworkLib[2]
+local plr = game.Players.LocalPlayer
+for i = 1, 1 do
+    local bladehit = require(game.ReplicatedStorage.CombatFramework.RigLib).getBladeHits(plr.Character,{plr.Character.HumanoidRootPart},60)
+    local cac = {}
+    local hash = {}
+    for k, v in pairs(bladehit) do
+        if v.Parent:FindFirstChild("HumanoidRootPart") and not hash[v.Parent] then
+            table.insert(cac, v.Parent.HumanoidRootPart)
+            hash[v.Parent] = true
+        end
+    end
+    bladehit = cac
+    if #bladehit > 0 then
+        pcall(function()
+            CmrFwLib.activeController.timeToNextAttack = -1
+            CmrFwLib.activeController.attacking = false
+            CmrFwLib.activeController.blocking = false
+            CmrFwLib.activeController.timeToNextBlock = 0
+            CmrFwLib.activeController.increment = 1 + 1 + math.huge
+            CmrFwLib.activeController.hitboxMagnitude = 200
+            CmrFwLib.activeController.focusStart = 0
+            game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("weaponChange",tostring(GetBladeHit()))
+            game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("hit", bladehit, 2, "")
+        end)
+    end
+end
+end
+
+
+spawn(function()
+while wait(.1) do
+    if _G.FastAttack then
+        pcall(function()
+            repeat task.wait(_G.FastAttackDelay)
+                AttackHit()
+            until not _G.FastAttack
+        end)
+    end
+end
+end)
 
     local DropdownSelectWeapon = Tabs.Main:AddDropdown("DropdownSelectWeapon", {
         Title = "Select Weapon",
@@ -2836,6 +2919,47 @@ local Toggle = Tabs.Main:AddToggle("MyToggle", {Title = "Bring Mob", Default = t
                 end
             end)
 
+local Toggle = Tabs.Main:AddToggle("MyToggle", {Title = "Auto Click", Default = true })
+
+    Toggle:OnChanged(function(value)
+     _G.AutoClick = value
+    end)
+
+    Options.MyToggle:SetValue(false)
+spawn(function()
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if _G.AutoClick then
+             pcall(function()
+                game:GetService'VirtualUser':CaptureController()
+			    game:GetService'VirtualUser':Button1Down(Vector2.new(0,1,0,1))
+            end)
+        end
+    end)
+   end)
+
+local QuestStatus = Tabs.Main:AddParagraph({
+        Title = "Quest Status",
+        Content = ""
+    })
+    
+    local MonsterStatus = Tabs.Main:AddParagraph({
+        Title = "Monster Status",
+        Content = ""
+    })
+spawn(function()
+    while task.wait() do
+        if game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false then
+            MonsterStatus:SetDesc("Monster : ...")
+            QuestStatus:SetDesc("Quest : ...".." | Level : ...")
+        elseif game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == true then
+            pcall(function()
+                CheckLevel()
+                MonsterStatus:SetDesc("Monster : "..Mon)
+                QuestStatus:SetDesc("Quest : "..NameQuest.." | Level : "..LevelQuest)
+            end)
+        end
+    end
+end)
 
     local ToggleLevel = Tabs.Main:AddToggle("ToggleLevel", {
         Title = "Farm level",
@@ -5284,17 +5408,17 @@ end)
             while task.wait() do
                 pcall(function()
                if game:GetService("Lighting").Sky.MoonTextureId=="http://www.roblox.com/asset/?id=9709149431" then
-                        FM:Set("🌑: Full Moon 100%")
+                        FM:SetDesc("🌑: Full Moon 100%")
                     elseif game:GetService("Lighting").Sky.MoonTextureId=="http://www.roblox.com/asset/?id=9709149052" then
-                        FM:Set(" 🌘 : Full Moon 75%")
+                        FM:SetDesc(" 🌘 : Full Moon 75%")
                     elseif game:GetService("Lighting").Sky.MoonTextureId=="http://www.roblox.com/asset/?id=9709143733" then
-                        FM:Set("🌗“ : Full Moon 50%")
+                        FM:SetDesc("🌗“ : Full Moon 50%")
                     elseif game:GetService("Lighting").Sky.MoonTextureId=="http://www.roblox.com/asset/?id=9709150401" then
-                        FM:Set("🌖 : Full Moon 25%")
+                        FM:SetDesc("🌖 : Full Moon 25%")
                     elseif game:GetService("Lighting").Sky.MoonTextureId=="http://www.roblox.com/asset/?id=9709149680" then
-                        FM:Set("🌕 : Full Moon 15%")
+                        FM:SetDesc("🌕 : Full Moon 15%")
                     else
-                        FM:Set("No Moon")
+                        FM:SetDesc("No Moon")
                     end
                 end)
             end
@@ -8067,7 +8191,7 @@ local button = Instance.new("TextButton") -- Use TextButton instead of ImageButt
 button.Name = "MyButton"
 button.Font = Enum.Font.SourceSansBold
 button.Size = UDim2.new(0, 50, 0, 50) -- Set size
-button.Position = UDim2.new(0, 10, 0.5, -25) -- Set position to the left with an X offset of 10 pixel
+button.Position = UDim2.new(0, 10, 0.3, -25) -- Set position to the left with an X offset of 10 pixel
 button.BackgroundColor3 = Color3.fromRGB(255, 124, 50) -- Set button background color to red
 
 button.Text = "Stop Tween" -- Set button text
