@@ -2653,23 +2653,84 @@ function to(p)
 		end)
 	end
 	----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+---Close UI
 local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("ImageButton")
 local UICorner = Instance.new("UICorner")
+local UIGradient = Instance.new("UIGradient")
+local UIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
 
-ScreenGui.Parent = game.CoreGui
+
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 ImageButton.Parent = ScreenGui
-ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ImageButton.BorderSizePixel = 0
-ImageButton.Position = UDim2.new(0.120833337, 0, 0.0952890813, 0)
-ImageButton.Size = UDim2.new(0, 49, 0, 50)
-ImageButton.Draggable = true
+ImageButton.BackgroundColor3 = Color3.fromRGB(124, 124, 124)
+ImageButton.Position = UDim2.new(0.10615778, 0, 0.16217947, 0)
+ImageButton.Size = UDim2.new(0, 50, 0, 50)
 ImageButton.Image = "rbxassetid://17221942833"
-ImageButton.MouseButton1Down:connect(function()
-    game:GetService("VirtualInputManager"):SendKeyEvent(true,Enum.KeyCode.End,false,game)
-end)
+
+UICorner.CornerRadius = UDim.new(0, 15)
+UICorner.Parent = ImageButton
+
+UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(224, 128, 18)), ColorSequenceKeypoint.new(0.20, Color3.fromRGB(212, 133, 42)), ColorSequenceKeypoint.new(0.40, Color3.fromRGB(237, 237, 237)), ColorSequenceKeypoint.new(0.60, Color3.fromRGB(237, 237, 237)), ColorSequenceKeypoint.new(0.80, Color3.fromRGB(224, 66, 9)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(191, 34, 13))}
+UIGradient.Parent = ImageButton
+
+UIAspectRatioConstraint.Parent = ImageButton
+UIAspectRatioConstraint.AspectRatio = 0.988
+
+
+local function HCEGY_fake_script()
+	local script = Instance.new('LocalScript', UIGradient)
+
+	local TweenService = game:GetService("TweenService")
+	local tweeninfo = TweenInfo.new(4, Enum.EasingStyle.Linear, Enum.EasingDirection.In, -1)
+	local tween = TweenService:Create(script.Parent, tweeninfo, {Rotation = 360})
+	tween:Play()
+end
+coroutine.wrap(HCEGY_fake_script)()
+local function YTZCAJC_fake_script()
+	local script = Instance.new('LocalScript', ImageButton)
+
+	local UIS = game:GetService('UserInputService')
+	local frame = script.Parent
+	local dragToggle = nil
+	local dragSpeed = 0.25
+	local dragStart = nil
+	local startPos = nil
+	
+	local function updateInput(input)
+		local delta = input.Position - dragStart
+		local position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+			startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+		game:GetService('TweenService'):Create(frame, TweenInfo.new(dragSpeed), {Position = position}):Play()
+	end
+	
+	frame.InputBegan:Connect(function(input)
+		if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then 
+			dragToggle = true
+			dragStart = input.Position
+			startPos = frame.Position
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragToggle = false
+				end
+			end)
+		end
+	end)
+	
+	UIS.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+			if dragToggle then
+				updateInput(input)
+			end
+		end
+	end)
+	script.Parent.MouseButton1Click:Connect(function()
+		game:GetService("VirtualInputManager"):SendKeyEvent(true,Enum.KeyCode.End,false,game)
+	end)
+end
+coroutine.wrap(YTZCAJC_fake_script)()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 if game:GetService("ReplicatedStorage").Effect.Container:FindFirstChild("Death") then
 	game:GetService("ReplicatedStorage").Effect.Container.Death:Destroy()
@@ -2937,25 +2998,25 @@ spawn(function()
     end)
    end)
 
-local QuestStatus = Tabs.Main:AddParagraph({
+local NameQuest = Tabs.Main:AddParagraph({
         Title = "Quest Status",
         Content = ""
     })
     
-    local MonsterStatus = Tabs.Main:AddParagraph({
+    local NameMon = Tabs.Main:AddParagraph({
         Title = "Monster Status",
         Content = ""
     })
 spawn(function()
     while task.wait() do
         if game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false then
-            MonsterStatus:SetDesc("Monster : ...")
-            QuestStatus:SetDesc("Quest : ...".." | Level : ...")
+            NameMon:SetDesc("Monster : ...")
+            NameQuest:SetDesc("Quest : ...".." | Level : ...")
         elseif game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == true then
             pcall(function()
                 CheckLevel()
-                MonsterStatus:SetDesc("Monster : "..Mon)
-                QuestStatus:SetDesc("Quest : "..NameQuest.." | Level : "..LevelQuest)
+                NameMon:SetDesc("Monster : ".. NameMon)
+                NameQuest:SetDesc("Quest : "..NameQuest.." | Level : "..LevelQuest)
             end)
         end
     end
@@ -8191,7 +8252,7 @@ local button = Instance.new("TextButton") -- Use TextButton instead of ImageButt
 button.Name = "MyButton"
 button.Font = Enum.Font.SourceSansBold
 button.Size = UDim2.new(0, 50, 0, 50) -- Set size
-button.Position = UDim2.new(0, 10, 0.3, -25) -- Set position to the left with an X offset of 10 pixel
+button.Position = UDim2.new(0, 10, 0.2, -25) -- Set position to the left with an X offset of 10 pixel
 button.BackgroundColor3 = Color3.fromRGB(255, 124, 50) -- Set button background color to red
 
 button.Text = "Stop Tween" -- Set button text
